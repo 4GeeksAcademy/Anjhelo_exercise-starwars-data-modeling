@@ -13,7 +13,6 @@ class Peliculas(Base):
     Id_peliculas = Column(String(6), primary_key=True)
     Titulo = Column(String(100))
     Director = Column(String(100))
-    personajes = relationship("Personajes", secondary="peliculas_personajes")
 
 class Personajes(Base):
     __tablename__ = "personajes"
@@ -25,11 +24,11 @@ class Personajes(Base):
     Color_pelo = Column(String(12))
     Color_ojos = Column(String(12))
     Color_piel = Column(String(12))
-    planeta = relationship("Planetas", secondary="planetas_personajes")
-    naves = relationship("Naves", secondary="personajes_naves")
-    vehiculos = relationship("Vehiculos", secondary="personajes_vehiculos")
-    peliculas = relationship("Peliculas", secondary="peliculas_personajes")
     especie_id = Column(String(6), ForeignKey('especies.Id_especie'))
+    peliculas = relationship("Peliculas", secondary="peliculas_personajes", backref="personajes")
+    planeta = relationship("Planetas", secondary="planetas_personajes", backref="personajes")
+    naves = relationship("Naves", secondary="personajes_naves", backref="personajes")
+    vehiculos = relationship("Vehiculos", secondary="personajes_vehiculos", backref="personajes")
     especie = relationship("Especies")
 
 class Planetas(Base):
@@ -39,7 +38,7 @@ class Planetas(Base):
     Poblacion = Column(Integer)
     Clima = Column(String(10))
     Gravedad = Column(String(10))
-    personajes = relationship("Personajes", secondary="planetas_personajes")
+    personajes = relationship("Personajes", secondary="planetas_personajes", backref="planetas")
 
 class Especies(Base):
     __tablename__ = "especies"
@@ -51,7 +50,7 @@ class Especies(Base):
     Color_pelo = Column(String(12))
     Color_ojos = Column(String(12))
     Color_piel = Column(String(12))
-    personajes = relationship("Personajes")
+    personajes = relationship("Personajes", backref="especie")
 
 class Naves(Base):
     __tablename__ = "naves"
@@ -63,7 +62,7 @@ class Naves(Base):
     Costo = Column(Integer)
     Carga = Column(Integer)
     Pasajeros = Column(Integer)
-    personajes = relationship("Personajes", secondary="personajes_naves")
+    personajes = relationship("Personajes", secondary="personajes_naves", backref="naves")
 
 class Vehiculos(Base):
     __tablename__ = "vehiculos"
@@ -75,14 +74,14 @@ class Vehiculos(Base):
     Costo = Column(Integer)
     Carga = Column(Integer)
     Pasajeros = Column(Integer)
-    personajes = relationship("Personajes", secondary="personajes_vehiculos")
+    personajes = relationship("Personajes", secondary="personajes_vehiculos", backref="vehiculos")
 
 class Usuarios(Base):
     __tablename__ = "usuarios"
     Id_usuario = Column(String(6), primary_key=True)
     Nombre = Column(String(100))
     email = Column(String(100), unique=True)
-    favoritos = relationship("Favoritos", secondary="usuarios_favoritos")
+    favoritos = relationship("Favoritos", secondary="usuarios_favoritos", backref="usuarios")
 
 class Favoritos(Base):
     __tablename__ = "favoritos"
@@ -90,7 +89,7 @@ class Favoritos(Base):
     planeta_id = Column(String(6), ForeignKey('planetas.Id_planeta'), nullable=True)
     nave_id = Column(String(6), ForeignKey('naves.Id_nave'), nullable=True)
     personaje_id = Column(String(6), ForeignKey('personajes.Id_Personajes'), nullable=True)
-    usuarios = relationship("Usuarios", secondary="usuarios_favoritos")
+    usuarios = relationship("Usuarios", secondary="usuarios_favoritos", backref="favoritos")
 
 class PeliculasPersonajes(Base):
     __tablename__ = "peliculas_personajes"
@@ -116,7 +115,6 @@ class UsuariosFavoritos(Base):
     __tablename__ = "usuarios_favoritos"
     usuario_id = Column(String(6), ForeignKey('usuarios.Id_usuario'), primary_key=True)
     favorito_id = Column(String(6), ForeignKey('favoritos.Id_favorito'), primary_key=True)
-
 
 ## Draw from SQLAlchemy base
 render_er(Base, 'diagram.png')
